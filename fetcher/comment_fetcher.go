@@ -23,9 +23,6 @@ func (f *CommentFetcher) Fetch(client *http.Client, appId string, page int, wg *
 	}
 
 	req.Header.Set(appIDHeader, appId)
-	q := req.URL.Query()
-	q.Add("page", fmt.Sprintf("%d", page))
-	req.URL.RawQuery = q.Encode()
 
 	resp, err := client.Do(req)
 	if err != nil {

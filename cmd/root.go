@@ -6,10 +6,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "backend-exercise",
-	Short: "Backend Exercise Application",
-}
+var (
+	rootCmd = &cobra.Command{
+		Use:   "backend-exercise",
+		Short: "Backend Exercise Application",
+	}
+)
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {

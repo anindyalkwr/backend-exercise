@@ -3,13 +3,20 @@ package fetcher
 import (
 	"backend-exercise/models"
 	"backend-exercise/utils"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/segmentio/kafka-go"
 )
 
-type CommentFetcher struct{}
+type CommentFetcher struct {
+	Rdb         *redis.Client
+	KafkaWriter *kafka.Writer
+}
 
 func (f *CommentFetcher) Fetch(client *http.Client, appId string, page int, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -43,5 +50,26 @@ func (f *CommentFetcher) Fetch(client *http.Client, appId string, page int, wg *
 
 	for _, comment := range result.Data {
 		fmt.Printf("Comment by %s %s:\n%s\n\nPost ID: %s\n", comment.User.FirstName, comment.User.LastName, comment.Message, comment.Post)
+
+		commentData, err := json.Marshal(comment)
+		if err != nil {
+			fmt.Printf("Error marshalling comment data: %v\n", err)
+			continue
+		}
+
+		commentKey := fmt.Sprintf("comment:%s", comment.ID)
+		err = f.Rdb.Set(context.Background(), commentKey, commentData, 0).Err()
+		if err != nil {
+			fmt.Printf("Error storing comment in Redis: %v\n", err)
+			continue
+		}
+
+		err = f.KafkaWriter.WriteMessages(context.Background(), kafka.Message{
+			Value: commentData,
+		})
+		if err != nil {
+			continue
+			// fmt.Printf("Error sending comment data to Kafka: %v\n", err)
+		}
 	}
 }

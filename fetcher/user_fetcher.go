@@ -68,8 +68,7 @@ func (f *UserFetcher) Fetch(client *http.Client, appId string, page int, wg *syn
 			Value: userData,
 		})
 		if err != nil {
-			continue
-			// fmt.Printf("Error sending user data to Kafka: %v\n", err)
+			fmt.Printf("Error sending user data to Kafka: %v\n", err)
 		}
 	}
 }

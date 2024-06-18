@@ -68,8 +68,7 @@ func (f *CommentFetcher) Fetch(client *http.Client, appId string, page int, wg *
 			Value: commentData,
 		})
 		if err != nil {
-			continue
-			// fmt.Printf("Error sending comment data to Kafka: %v\n", err)
+			fmt.Printf("Error sending comment data to Kafka: %v\n", err)
 		}
 	}
 }

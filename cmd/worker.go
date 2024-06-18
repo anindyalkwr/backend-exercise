@@ -8,13 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-redis/redis/v8"
-	"github.com/segmentio/kafka-go"
 	"github.com/spf13/cobra"
 
 	"github.com/opentracing/opentracing-go"
-	"github.com/uber/jaeger-client-go"
-	"github.com/uber/jaeger-client-go/config"
 )
 
 var workerCmd = &cobra.Command{
@@ -32,33 +28,15 @@ func init() {
 func runWorker() {
 	appId := utils.GetAppID()
 
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+	rdb := utils.InitRedisClient()
 
-	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: []string{"localhost:9092"},
-		Topic:   "scraped-data",
-	})
+	kafkaWriter := utils.InitKafkaWriter()
 	defer kafkaWriter.Close()
 
-	cfg := config.Configuration{
-		ServiceName: "backend-exercise",
-		Sampler: &config.SamplerConfig{
-			Type:  jaeger.SamplerTypeConst,
-			Param: 1,
-		},
-		Reporter: &config.ReporterConfig{
-			LogSpans:           true,
-			LocalAgentHostPort: "localhost:6831",
-		},
+	tracer, closer := utils.InitJaegerTracer()
+	if closer != nil {
+		defer closer.Close()
 	}
-	tracer, closer, err := cfg.NewTracer()
-	if err != nil {
-		fmt.Printf("could not initialize jaeger tracer: %v\n", err)
-		return
-	}
-	defer closer.Close()
 	opentracing.SetGlobalTracer(tracer)
 
 	var wg sync.WaitGroup

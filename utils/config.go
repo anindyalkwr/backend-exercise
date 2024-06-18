@@ -29,3 +29,27 @@ func GetBaseURL() string {
 	}
 	return appId
 }
+
+func GetKafkaURL() string {
+	appId := os.Getenv("KAFKA_URL")
+	if appId == "" {
+		log.Fatal("KAFKA_URL not set in .env file")
+	}
+	return appId
+}
+
+func GetRedisURL() string {
+	appId := os.Getenv("REDIS_URL")
+	if appId == "" {
+		log.Fatal("REDIS_URL not set in .env file")
+	}
+	return appId
+}
+
+func GetJaegerURL() string {
+	appId := os.Getenv("JAEGER_URL")
+	if appId == "" {
+		log.Fatal("JAEGER_URL not set in .env file")
+	}
+	return appId
+}

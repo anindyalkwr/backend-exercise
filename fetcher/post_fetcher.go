@@ -68,8 +68,7 @@ func (f *PostFetcher) Fetch(client *http.Client, appId string, page int, wg *syn
 			Value: postData,
 		})
 		if err != nil {
-			continue
-			// fmt.Printf("Error sending post data to Kafka: %v\n", err)
+			fmt.Printf("Error sending post data to Kafka: %v\n", err)
 		}
 
 	}

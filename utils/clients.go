@@ -20,16 +20,16 @@ func InitRedisClient() *redis.Client {
 
 func InitKafkaWriter() *kafka.Writer {
 	return kafka.NewWriter(kafka.WriterConfig{
-		Brokers:  []string{"localhost:9092"},
-		Topic:    "scraped-data",
-		Balancer: &kafka.LeastBytes{},
+		Brokers:  []string{GetKafkaURL()},
+		Topic:    GetKafkaTopic(),
+		Balancer: &kafka.Hash{},
 	})
 }
 
-func InitKafkaReader() *kafka.Reader {
+func InitKafkaReader(topic string) *kafka.Reader {
 	return kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{"localhost:9092"},
-		Topic:   "scraped-data",
+		Brokers: []string{GetKafkaURL()},
+		Topic:   topic,
 	})
 }
 
